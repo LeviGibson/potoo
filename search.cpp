@@ -3,7 +3,9 @@
 //
 
 #include "search.h"
+#ifdef WASM
 #include <emscripten.h>
+#endif
 
 U64 EXTENDED_HASHES[1000000];
 int num_states_extended = 0;
@@ -13,20 +15,28 @@ int nodes = 0;
 
 Alg alg = Alg();
 
+#ifdef WASM
 EM_JS(void, update, (), {
     window.update();
 });
+#endif
 
 int search(int depth, int extended, Cube* cube){
     nodes++;
 
+    #ifdef WASM
     if (nodes % 100 == 0){
         update();
     }
+    #endif
 
     assert(cube->ply < 60);
 
     U64 h = cube->hash();
+
+    if (extended && !is_close_to_solved(h)){
+        return 0;
+    }
 
     if (extended && cube->is_solved()) {
         
@@ -46,7 +56,7 @@ int search(int depth, int extended, Cube* cube){
         }
     }
 
-    if (!extended && is_close_to_solved(cube->hash())){
+    if (!extended && is_close_to_solved(h)){
         if (!U64_scan(h, EXTENDED_HASHES, num_states_extended)) {
             extended = 1;
             depth += PRUNING_DEPTH;

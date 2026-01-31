@@ -4,7 +4,9 @@
 
 #include "cube.h"
 #include <iostream>
+#ifdef WASM
 #include <emscripten/emscripten.h>
+#endif
 
 int qt_cycles[6][4] = {
         {UFR, UBR, DBR, DFR},
@@ -395,9 +397,22 @@ void Alg::print() {
     printf("\n");
 }
 
+#ifdef WASM
 EM_JS(void, add_solution, (const char* sol_ptr), {
     window.addSolution(UTF8ToString(sol_ptr));
 });
+#endif
+
+std::string ROTATION_NAMES[8][3] = {
+    {"x2 y ", "z' ", "x "},
+    {"x2 y2 ", "x y' ", "z y' "},
+    {"x2 y' ", "z y2 ", "x' y2 "},
+    {"x2 ", "x' y ", "z' y "},
+    {"y ", "z' y2 ", "x' "},
+    {"y2 ", "x' y' ", "z y "},
+    {"y' ", "z ", "x y2 "},
+    {"", "x y ", "z' y' "}
+};
 
 void Alg::send() {
 
@@ -411,11 +426,14 @@ void Alg::send() {
         for (int orientation = 0; orientation < 3; orientation++){
             memcpy(moves, all_angles[corner][orientation], sizeof(moves));
             std::string output = std::to_string(score()) + ",";
+            output += ROTATION_NAMES[corner][orientation];
             for (int i = 0; i < length; i++){
                 output += MOVE_TO_STR[moves[i]];
                 output += (std::string)" ";
             }
+            #ifdef WASM
             add_solution(output.c_str());
+            #endif
         }
     }
 

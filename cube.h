@@ -81,6 +81,7 @@ public:
     //clear history and set random state
     void set_random_state();
 
+    U64 genhash();
     U64 hash();
 
     //Corner Binary tools

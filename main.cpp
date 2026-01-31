@@ -6,7 +6,10 @@
 #include "search.h"
 #include "pruning.h"
 #include <ctime>
+
+#ifdef WASM
 #include <emscripten.h>
+#endif
 
 extern "C"{
 
@@ -27,35 +30,50 @@ void increase_depth(){
 
 }
 
-// int main(int argc, char* argv[]){
-//     srand(time(NULL));
-//     init_cube();
-//     init_pruning();
-//     init_search((char*)"./out.csv");
+#ifdef EXE
 
-//     Cube cube = Cube();
-//     cube.parse_alg((char*)"R2 U2 R F' R' F U2 R2");
-//     find_algorithms(&cube);
-//     // Alg alg = Alg();
-//     // alg.from_cube(&cube);
+int main(int argc, char* argv[]){
+    srand(time(NULL));
+    init_cube();
+    init_pruning();
 
-//     // for (int corner = 0; corner < 8; corner++){
-//     //     for (int orientation = 0; orientation < 3; orientation++){
-//     //         alg.rotate(corner, orientation);
-//     //         // exit(0);
-//     //     }
-//     // }
+    time_t seconds;
+    seconds = time(NULL);
 
-//     // for (int corner = 0; corner < 8; corner++){
-//     //     for (int orientation = 0; orientation < 3; orientation++){
-//     //         memcpy(alg.moves, alg.all_angles[corner][orientation], sizeof(alg.moves));
+    start_search((char*)"R2 U2 R F' R' F U2 R2");
+    for (int i = 0; i < 14-PRUNING_DEPTH; i++){
+        increase_depth();
+        printf("%d\n", i);
+    }
 
-//     //         printf("Corner:%d Orientation: %d\n", corner, orientation);
-//     //         alg.print();
-//     //         printf("\n");
-//     //     }
-//     // }
+
+    //77
+    printf("Time: %ld seconds\n", time(NULL)-seconds);
+
+    // cube.parse_alg((char*)"R2 U2 R F' R' F U2 R2");
+    // find_algorithms(&cube);
+    // Alg alg = Alg();
+    // alg.from_cube(&cube);
+
+    // for (int corner = 0; corner < 8; corner++){
+    //     for (int orientation = 0; orientation < 3; orientation++){
+    //         alg.rotate(corner, orientation);
+    //         // exit(0);
+    //     }
+    // }
+
+    // for (int corner = 0; corner < 8; corner++){
+    //     for (int orientation = 0; orientation < 3; orientation++){
+    //         memcpy(alg.moves, alg.all_angles[corner][orientation], sizeof(alg.moves));
+
+    //         printf("Corner:%d Orientation: %d\n", corner, orientation);
+    //         alg.print();
+    //         printf("\n");
+    //     }
+    // }
     
 
-//     return 0;
-// }
+    return 0;
+}
+
+#endif
