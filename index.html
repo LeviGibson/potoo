@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Potoo</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    input, button { font-size: 1rem; padding: 0.5rem; margin: 0.2rem; }
+    #solutions { margin-top: 20px; list-style-type: decimal; max-height: 300px; overflow-y: auto; }
+
+    #solutions {
+      background-color: #f2f2f2;   /* light gray */
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    #solutions li {
+      padding: 4px 6px;
+      margin: 2px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Potoo</h1>
+
+  <label for="scramble">Enter scramble:</label>
+  <input type="text" id="scramble" placeholder="R U R' U'" size="40">
+  <button id="startBtn" disabled>Start Solver</button>
+  <button id="clearBtn">Clear Solutions</button>
+
+  <!-- HTML -->
+<label for="range">Max Depth: <span id="val">12</span></label>
+<input type="range" id="range" min="8" max="16" value="12" oninput="updateLabel(this.value)">
+
+<!-- JavaScript -->
+<script>
+  var maxDepth = 12;
+function updateLabel(val) {
+  document.getElementById('val').innerText = val;
+  maxDepth = val;
+}
+</script>
+  <h3 id="depthIndicator">Waiting</h3>
+
+  <ul id="solutions"></ul>
+
+  <script type="module">
+    import createModule from "./potoo.js";
+
+    let wasmModule;
+
+    // Initialize WASM module
+    async function initWASM() {
+      wasmModule = await createModule();
+      console.log("WASM module loaded");
+
+      // Call exported C++ init_all function
+      wasmModule._init_all();
+
+      // Enable start button
+      document.getElementById("startBtn").disabled = false;
+    }
+
+    initWASM();
+
+    const startBtn = document.getElementById("startBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const solutionsList = document.getElementById("solutions");
+
+    // Called from EM_JS in C++ after each depth
+    var solutions = []; // { score: number, alg: string }
+
+window.update = async function() {
+  await sleep(10);
+}
+
+var lastUpdate = 0;
+
+window.addSolution = function(message) {
+  const commaIndex = message.indexOf(",");
+  if (commaIndex === -1) return;
+
+  // console.log(message);
+
+  const score = parseInt(message.slice(0, commaIndex), 10);
+  const alg = message.slice(commaIndex + 1);
+
+  if (Number.isNaN(score)) return;
+
+  // Store solution
+  solutions.push({ score, alg });
+
+  // Sort by score (lowest first)
+  solutions.sort((a, b) => a.score - b.score);
+
+
+  // const unixTimeInSeconds = (Date.now() / 1000);
+  // if (unixTimeInSeconds - lastUpdate >= 1){
+    renderSolutions();
+  //   lastUpdate = unixTimeInSeconds;
+
+  // }
+
+  // Re-render list
+};
+
+function renderSolutions() {
+  const list = document.getElementById("solutions");
+  list.innerHTML = "";
+  var solutionsDisplayed = 0;
+
+  for (const { score, alg } of solutions) {
+    if (score < 10000000){
+      const li = document.createElement("li");
+      li.textContent = `${alg}`;
+      list.appendChild(li);
+
+      solutionsDisplayed++;
+      if (solutionsDisplayed > 100){
+        break;
+      }
+    }
+  }
+}
+
+    startBtn.onclick = () => {
+  const scramble = document.getElementById("scramble").value.trim();
+const lengthBytes = wasmModule.lengthBytesUTF8(scramble) + 1; // +1 for null terminator
+const ptr = wasmModule._malloc(lengthBytes);
+
+// Copy JS string into WASM memory
+wasmModule.stringToUTF8(scramble, ptr, lengthBytes);
+
+// Call your C++ function with pointer
+wasmModule._start_solver(ptr);
+
+// Free memory afterwards (optional)
+wasmModule._free(ptr);
+    iterate();
+
+
+};
+
+    clearBtn.onclick = () => {
+      solutionsList.innerHTML = "";
+      solutions = [];
+    };
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function iterate() {
+      solutions = [];
+      var depth = 7;
+      while (depth <= maxDepth){
+        document.getElementById("depthIndicator").textContent = `Searching Depth ${depth}`
+        wasmModule._increase_depth();
+        await sleep(100);
+        depth++;
+      }
+      document.getElementById("depthIndicator").textContent = `Search Finished`
+    }
+
+
+  </script>
+</body>
+
+</html>

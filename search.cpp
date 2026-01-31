@@ -3,6 +3,7 @@
 //
 
 #include "search.h"
+#include <emscripten.h>
 
 U64 EXTENDED_HASHES[1000000];
 int num_states_extended = 0;
@@ -10,16 +11,18 @@ U64 SOLUTION_HASHES[1000000];
 int algs_found = 0;
 int nodes = 0;
 
-FILE* outfile;
-
-void init_search(char* fn){
-    outfile = fopen(fn, "w");
-}
-
 Alg alg = Alg();
+
+EM_JS(void, update, (), {
+    window.update();
+});
 
 int search(int depth, int extended, Cube* cube){
     nodes++;
+
+    if (nodes % 100 == 0){
+        update();
+    }
 
     assert(cube->ply < 60);
 
@@ -31,15 +34,15 @@ int search(int depth, int extended, Cube* cube){
 
         if (!U64_scan(alg.hash(), SOLUTION_HASHES, algs_found)) {
 
-            if (algs_found % 1000 == 0) {
-                printf("%d algs found\n", algs_found);
-            }
+            // if (algs_found % 1000 == 0) {
+            //     printf("%d algs found\n", algs_found);
+            // }
 
             SOLUTION_HASHES[algs_found] = alg.hash();
             algs_found++;
             assert(algs_found < 1000000);
 
-            alg.send(outfile);
+            alg.send();
         }
     }
 
@@ -82,16 +85,34 @@ int search(int depth, int extended, Cube* cube){
     return 0;
 }
 
-void find_algorithms(Cube* cube){
-    Cube cube_copy = *cube;
+int depthSearched;
+
+Cube searchCube;
+
+void start_search(char* scramble){
+    Cube cube_copy = Cube();
+    cube_copy.parse_alg(scramble);
     cube_copy.reset_history();
     num_states_extended = 0;
     memset(EXTENDED_HASHES, 0, sizeof(EXTENDED_HASHES));
 
     algs_found = 0;
+    depthSearched = 0;
 
-    for (int depth = 0; depth < 11; depth++){
-        printf("searching depth %d nodes %d\n", depth + PRUNING_DEPTH, nodes);
-        int res = search(depth, 0, &cube_copy);
-    }
+    // for (int depth = 0; depth < 4; depth++){
+    //     printf("searching depth %d nodes %d\n", depth + PRUNING_DEPTH, nodes);
+    //     int res = search(depth, 0, &cube_copy);
+    //     depthSearched = depth;
+
+    //     if (res)
+    //         break;
+    // }
+
+    memcpy(&searchCube, &cube_copy, sizeof(Cube));
+}
+
+void step(){
+    depthSearched++;
+    printf("searching depth %d nodes %d\n", depthSearched + PRUNING_DEPTH, nodes);
+    int res = search(depthSearched, 0, &searchCube);
 }

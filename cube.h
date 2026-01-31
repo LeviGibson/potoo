@@ -154,7 +154,7 @@ public:
     void append(int move);
     void from_cube(Cube* cube);
     void print();
-    void send(FILE* file);
+    void send();
     void rotate(int corner, int orientation);
 
     int score();

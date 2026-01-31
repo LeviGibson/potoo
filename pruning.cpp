@@ -74,6 +74,6 @@ void init_pruning(){
     Cube cube = Cube();
     close_solve_search(PRUNING_DEPTH, &cube);
     sort_close_solve_keys();
-    printf("Found %d hashable solutions\n", close_solved_keys_found);
+    // printf("Found %d hashable solutions\n", close_solved_keys_found);
 //    printf("Found %d hashable HTRs\n", close_htr_keys_found);
 }

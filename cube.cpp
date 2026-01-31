@@ -3,7 +3,8 @@
 //
 
 #include "cube.h"
-
+#include <iostream>
+#include <emscripten/emscripten.h>
 
 int qt_cycles[6][4] = {
         {UFR, UBR, DBR, DFR},
@@ -394,7 +395,11 @@ void Alg::print() {
     printf("\n");
 }
 
-void Alg::send(FILE *file) {
+EM_JS(void, add_solution, (const char* sol_ptr), {
+    window.addSolution(UTF8ToString(sol_ptr));
+});
+
+void Alg::send() {
 
     for (int corner = 0; corner < 8; corner++){
         for (int orientation = 0; orientation < 3; orientation++){
@@ -405,11 +410,12 @@ void Alg::send(FILE *file) {
     for (int corner = 0; corner < 8; corner++){
         for (int orientation = 0; orientation < 3; orientation++){
             memcpy(moves, all_angles[corner][orientation], sizeof(moves));
-            fprintf(file, "%d,", score());
+            std::string output = std::to_string(score()) + ",";
             for (int i = 0; i < length; i++){
-                fprintf(file, "%s ", MOVE_TO_STR[moves[i]]);
+                output += MOVE_TO_STR[moves[i]];
+                output += (std::string)" ";
             }
-            fprintf(file, "\n");
+            add_solution(output.c_str());
         }
     }
 
@@ -591,7 +597,7 @@ int FINGERTRICK_SCORES[15] = {
 70, //        U_FLICK,
 100, //        U_PINCH,
 150, //        U_PUSH,
-70, //        F_FLICK,
+100, //        F_FLICK,
 180, //        F_PINCH,
 60, //        RP_WRIST,
 70, //        UP_FLICK,

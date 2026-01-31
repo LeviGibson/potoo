@@ -8,7 +8,7 @@
 #include "cube.h"
 #include "pruning.h"
 
-void find_algorithms(Cube* cube);
-void init_search(char* fn = (char*)"./algs.csv");
+void start_search(char* scramble);
+void step();
 
 #endif //GCO_SEARCH_H
