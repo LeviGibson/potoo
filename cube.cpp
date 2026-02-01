@@ -453,7 +453,7 @@ U64 Alg::hash() {
 
 //R, U, F, RP, UP, FP, R2, U2, F2
 
-enum{R_WRIST, U_FLICK, U_PINCH, U_PUSH, F_FLICK, F_PINCH, RP_WRIST, UP_FLICK, FP_PINCH, FP_THUMB, R2_UP, R2_DOWN, U2_LEFT, U2_RIGHT, F2_DOUBLE};
+enum{R_WRIST, U_FLICK, U_PINCH, U_PUSH, F_FLICK, F_PINCH, RP_WRIST, UP_FLICK, FP_PINCH, FP_THUMB, R2_UP, R2_DOWN, U2_LEFT, U2_RIGHT, F2_DOUBLE, FP_FLICK};
 enum{REGRIP_NONE, REGRIP_UP, REGRIP_DOWN, REGRIP_DOUBLE_UP, REGRIP_DOUBLE_DOWN};
 
 void Alg::gen(int depth, int handpos) {
@@ -591,16 +591,22 @@ void Alg::gen(int depth, int handpos) {
             return;
         }
     } else if (move == FP) {
-        fingertrick_stack[depth][0] = FP_PINCH;
-        fingertrick_stack[depth][1] = REGRIP_NONE;
-        gen(depth + 1, handpos);
-
+        if (handpos == -1){
+            fingertrick_stack[depth][0] = FP_FLICK;
+            fingertrick_stack[depth][1] = REGRIP_NONE;
+            gen(depth + 1, handpos);
+        }
+        
         if (handpos == 0){
             // if (moves[depth+1] != U){
                 fingertrick_stack[depth][0] = FP_THUMB;
                 fingertrick_stack[depth][1] = REGRIP_NONE;
                 gen(depth + 1, handpos);
             // }
+
+            fingertrick_stack[depth][0] = FP_PINCH;
+            fingertrick_stack[depth][1] = REGRIP_NONE;
+            gen(depth + 1, handpos);
         }
     } else if (move == F2) {
         if (handpos == -1){
@@ -613,7 +619,7 @@ void Alg::gen(int depth, int handpos) {
     }
 }
 
-int FINGERTRICK_SCORES[15] = {
+int FINGERTRICK_SCORES[16] = {
 60, //        R_WRIST,
 70, //        U_FLICK,
 100, //        U_PINCH,
@@ -628,12 +634,13 @@ int FINGERTRICK_SCORES[15] = {
 120, //        R2_DOWN,
 160, //        U2_LEFT,
 160, //        U2_RIGHT,
-160//        F2_DOUBLE
+160,//        F2_DOUBLE
+70 // FP_FLICK
 };
 
 enum {LEFT_POINTER, LEFT_MIDDLE, RIGHT_POINTER, RIGHT_MIDDLE, DOUBLE_LEFT_FINGER, DOUBLE_RIGHT_FINGER, NO_FINGER};
 
-int FINGER_NEEDED[15] = {
+int FINGER_NEEDED[16] = {
         NO_FINGER, //        R_WRIST,
         RIGHT_POINTER, //        U_FLICK,
         RIGHT_POINTER, //        U_PINCH,
@@ -648,7 +655,8 @@ int FINGER_NEEDED[15] = {
         NO_FINGER, //        R2_DOWN,
         DOUBLE_LEFT_FINGER, //        U2_LEFT,
         DOUBLE_RIGHT_FINGER, //        U2_RIGHT,
-        DOUBLE_RIGHT_FINGER//        F2_DOUBLE
+        DOUBLE_RIGHT_FINGER,//        F2_DOUBLE
+        LEFT_POINTER // FP_FLICK
 };
 
 int REGRIP_SCORES[] = {
@@ -697,6 +705,8 @@ int can_use_middle_finger(int ft, int handpos){
         return 0;
     }
     if (ft == F2_DOUBLE){
+        return 0;
+    } if (ft == FP_FLICK){
         return 0;
     }
 
