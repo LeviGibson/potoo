@@ -8,6 +8,8 @@
 #include <emscripten/emscripten.h>
 #endif
 
+int algGeneratingMode = 0;
+
 int qt_cycles[6][4] = {
         {UFR, UBR, DBR, DFR},
         {UBR, UFR, UFL, UBL},
@@ -744,10 +746,21 @@ int Alg::score_fingertricks(int index) {
                 finger_usage[f]--;
         }
 
-        if (i == length - 1){
+        if (i == length - 1 ||
+            (algGeneratingMode && 
+                (moves[length-1] == U || moves[length-1] == UP || moves[length-1] == U2) &&
+                i == length-2)){
             //you can do funky fingertricks for the last move 
             //so lets not put very much weight on it
             score += (movescore/4);
+        } else if (i == 0 && algGeneratingMode &&
+            (moves[i] == U || moves[i] == UP || moves[i] == U2)){
+                //:)
+
+        } else if (i == length - 1 && algGeneratingMode &&
+            (moves[i] == U || moves[i] == UP || moves[i] == U2)){
+                //:)
+
         } else{
             score += movescore;
         }

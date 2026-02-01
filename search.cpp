@@ -80,8 +80,8 @@ int search(int depth, int extended, Cube* cube){
 
             //Don't count U moves towards the move total for the first move
             //Because it's a pre-auf
-            // if (cube->ply == 0 && (move == U || move == UP || move == U2))
-            //     RS = 0;
+            if (algGeneratingMode && cube->ply == 0 && (move == U || move == UP || move == U2))
+                RS = 0;
 
             cube->make_move(move);
             int res = search(depth - RS, extended, cube);
@@ -99,11 +99,12 @@ int depthSearched;
 
 Cube searchCube;
 
-void start_search(char* scramble){
+void start_search(char* scramble, int algGenerating){
     Cube cube_copy = Cube();
     cube_copy.parse_alg(scramble);
     cube_copy.reset_history();
     num_states_extended = 0;
+    algGeneratingMode = algGenerating;
     memset(EXTENDED_HASHES, 0, sizeof(EXTENDED_HASHES));
 
     algs_found = 0;

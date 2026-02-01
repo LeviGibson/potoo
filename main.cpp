@@ -19,9 +19,10 @@ void init_all(){
     
 }
 
-void start_solver(const char* scramble) {
+void start_solver(const char* scramble, bool algGenerating) {
     printf("Scramble Recieved: %s\n", scramble);
-    start_search((char*)scramble);
+    printf("%d\n", algGenerating);
+    start_search((char*)scramble, algGenerating);
 }
 
 void increase_depth(){

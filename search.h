@@ -8,7 +8,7 @@
 #include "cube.h"
 #include "pruning.h"
 
-void start_search(char* scramble);
+void start_search(char* scramble, int algGenerating);
 void step();
 
 #endif //GCO_SEARCH_H
