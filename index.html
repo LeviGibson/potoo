@@ -78,6 +78,38 @@
 
   <label for="scramble">Enter scramble:</label>
   <input type="text" id="scramble" placeholder="R U R' U'" size="40">
+  <div id="error" style="color: red; display: none;">
+  please enter only valid notation (&ltR U F&gt)
+</div>
+
+<script>
+  const input = document.getElementById("scramble");
+  const error = document.getElementById("error");
+
+  // Regex for a single move: R, R', R2, etc.
+  const moveRegex = /^[RUF](?:'|2)?$/;
+
+  function isValidScramble(text) {
+    if (text.trim() === "") return true; // allow empty
+    return text
+      .trim()
+      .split(/\s+/)
+      .every(move => moveRegex.test(move));
+  }
+
+  input.addEventListener("input", () => {
+    if (isValidScramble(input.value)) {
+      document.getElementById("startBtn").disabled = false;
+      input.style.border = "";
+      error.style.display = "none";
+    } else {
+      document.getElementById("startBtn").disabled = true;
+      input.style.border = "2px solid red";
+      error.style.display = "block";
+    }
+  });
+</script>
+
   <button id="startBtn" disabled>Start Solver</button>
   <button id="settingsBtn">⚙️ Settings</button>
 
