@@ -404,14 +404,14 @@ EM_JS(void, add_solution, (const char* sol_ptr), {
 #endif
 
 std::string ROTATION_NAMES[8][3] = {
-    {"x2 y ", "z' ", "x "},
-    {"x2 y2 ", "x y' ", "z y' "},
-    {"x2 y' ", "z y2 ", "x' y2 "},
-    {"x2 ", "x' y ", "z' y "},
-    {"y ", "z' y2 ", "x' "},
-    {"y2 ", "x' y' ", "z y "},
-    {"y' ", "z ", "x y2 "},
-    {"", "x y ", "z' y' "}
+    {"(x2 y) ", "(z') ", "(x) "},
+    {"(x2 y2) ", "(x y') ", "(z y') "},
+    {"(x2 y') ", "(z y2) ", "(x' y2) "},
+    {"(x2) ", "(x' y) ", "(z' y) "},
+    {"(y) ", "(z' y2) ", "(x') "},
+    {"(y2) ", "(x' y') ", "(z y) "},
+    {"(y') ", "(z) ", "(x y2) "},
+    {"() ", "(x y) ", "(z' y') "}
 };
 
 void Alg::send() {
@@ -431,6 +431,7 @@ void Alg::send() {
                 output += MOVE_TO_STR[moves[i]];
                 output += (std::string)" ";
             }
+
             #ifdef WASM
             add_solution(output.c_str());
             #endif

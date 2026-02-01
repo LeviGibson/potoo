@@ -18,6 +18,58 @@
       padding: 4px 6px;
       margin: 2px 0;
     }
+
+    body {
+  font-family: sans-serif;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+
+  max-height: 80vh;        /* ← key line */
+  overflow-y: auto;       /* ← key line */
+}
+
+.modal label {
+  display: block;
+  margin: 10px 0;
+}
+
+.buttons {
+  text-align: right;
+  margin-top: 15px;
+}
+
+.container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px;
+      max-width: 500px;
+    }
+    label {
+      cursor: pointer;
+      user-select: none;
+    }
+
   </style>
 </head>
 <body>
@@ -27,11 +79,34 @@
   <label for="scramble">Enter scramble:</label>
   <input type="text" id="scramble" placeholder="R U R' U'" size="40">
   <button id="startBtn" disabled>Start Solver</button>
-  <button id="clearBtn">Clear Solutions</button>
+  <button id="settingsBtn">⚙️ Settings</button>
 
-  <!-- HTML -->
 <label for="range">Max Depth: <span id="val">12</span></label>
 <input type="range" id="range" min="8" max="16" value="12" oninput="updateLabel(this.value)">
+
+
+<div id="overlay" class="hidden">
+  <div class="modal">
+    <h2>Settings</h2>
+
+    <label>
+      <input type="checkbox" id="showScores">
+      Show Scores
+    </label>
+
+    <h3>Allowed Angles</h3>
+    <button id="selectAllRotations">Select All</button>
+    <button id="selectNoneRotations">Select None</button>
+
+    <div class="container" id="checkboxContainer"></div>
+
+
+    <div class="buttons">
+      
+      <button id="closeBtn">Close</button>
+    </div>
+  </div>
+</div>
 
 <!-- JavaScript -->
 <script>
@@ -105,6 +180,8 @@ window.addSolution = function(message) {
   // Re-render list
 };
 
+var showScores = document.getElementById("showScores").checked;
+
 function renderSolutions() {
   const list = document.getElementById("solutions");
   list.innerHTML = "";
@@ -113,16 +190,111 @@ function renderSolutions() {
   for (const { score, alg } of solutions) {
     if (score < 10000000){
       const li = document.createElement("li");
-      li.textContent = `${alg}`;
-      list.appendChild(li);
-
-      solutionsDisplayed++;
-      if (solutionsDisplayed > 100){
-        break;
+      var rotations = alg.split(")")[0].split("(")[1];
+      // console.log(alg);
+      // console.log(rotations);
+      if (rotations.length == 0){
+        rotations = "None"
       }
+      if (allowedRotations.includes(rotations)){
+        if (showScores){
+          li.textContent = `${alg} (Score: ${score})`;
+        } else {
+          li.textContent = `${alg}`;
+        }
+        
+        list.appendChild(li);
+
+        solutionsDisplayed++;
+        if (solutionsDisplayed > 100){
+          break;
+        }
+    }
     }
   }
 }
+
+  const rotationOptions = [
+    "x2 y", "z'", "x", "x2 y2", "x y'", "z y'",
+    "x2 y'", "z y2", "x' y2", "x2", "x' y",
+    "z' y", "y", "z' y2", "x'", "y2",
+    "x' y'", "z y", "y'", "z", "x y2",
+    "None", "x y", "z' y'"
+  ];
+
+  // Global list
+  let allowedRotations = [...rotationOptions];
+
+  const container = document.getElementById("checkboxContainer");
+
+  rotationOptions.forEach(option => {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+
+    checkbox.type = "checkbox";
+    checkbox.className = "rotationCheckbox"
+    checkbox.checked = true;
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        if (!allowedRotations.includes(option)) {
+          allowedRotations.push(option);
+        }
+      } else {
+        allowedRotations = allowedRotations.filter(v => v !== option);
+      }
+      renderSolutions();
+    });
+
+    label.appendChild(checkbox);
+    label.append(" " + option);
+    container.appendChild(label);
+  });
+
+const settingsBtn = document.getElementById("settingsBtn");
+  const overlay = document.getElementById("overlay");
+  const closeBtn = document.getElementById("closeBtn");
+  const selectAllRotationsBtn = document.getElementById("selectAllRotations");
+  const selectNoneRotationsBtn = document.getElementById("selectNoneRotations");
+
+  selectAllRotationsBtn.onclick = () => {
+    var checkboxes = document.getElementsByClassName("rotationCheckbox");
+    for (const box of checkboxes){
+      box.checked = true;
+      const changeEvent = new Event('change', { bubbles: true });
+      box.dispatchEvent(changeEvent);
+
+    }
+  };
+
+  selectNoneRotationsBtn.onclick = () => {
+    var checkboxes = document.querySelectorAll(".rotationCheckbox");
+    for (const box of checkboxes){
+      box.checked = false;
+      const changeEvent = new Event('change', { bubbles: false });
+      box.dispatchEvent(changeEvent);
+    }
+  };
+
+  settingsBtn.onclick = () => {
+    overlay.classList.remove("hidden");
+  };
+
+  closeBtn.onclick = () => {
+    overlay.classList.add("hidden");
+  };
+
+  // Optional: click outside modal to close
+  overlay.onclick = (e) => {
+    if (e.target === overlay) {
+      overlay.classList.add("hidden");
+    }
+  };
+
+  document.getElementById("showScores").addEventListener("change", e => {
+    showScores = e.target.checked;
+    renderSolutions();
+  });
 
     startBtn.onclick = () => {
   const scramble = document.getElementById("scramble").value.trim();
@@ -142,11 +314,6 @@ wasmModule._free(ptr);
 
 };
 
-    clearBtn.onclick = () => {
-      solutionsList.innerHTML = "";
-      solutions = [];
-    };
-
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -165,7 +332,6 @@ wasmModule._free(ptr);
 
 
   </script>
-
   <footer>
  <small>&copy; Copyright 2026, Levi Gibson</small>
 </footer>
