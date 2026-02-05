@@ -52,7 +52,7 @@ int main(){
     // printf("Time: %ld seconds\n", time(NULL)-seconds);
 
     Cube cube = Cube();
-    cube.parse_alg((char*)"R' F R' F' R F' R' F' R U' F R");
+    cube.parse_alg((char*)"R' F R U2 F' R' U' F2 R");
     Alg* alg = (Alg*)malloc(sizeof(Alg));
     alg->from_cube(&cube);
     int score = alg->score();

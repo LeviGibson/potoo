@@ -456,6 +456,9 @@ U64 Alg::hash() {
 enum{R_WRIST, U_FLICK, U_PINCH, U_PUSH, F_FLICK, F_PINCH, RP_WRIST, UP_FLICK, FP_PINCH, FP_THUMB, R2_UP, R2_DOWN, U2_LEFT, U2_RIGHT, F2_DOUBLE, FP_FLICK};
 enum{REGRIP_NONE, REGRIP_UP, REGRIP_DOWN, REGRIP_DOUBLE_UP, REGRIP_DOUBLE_DOWN};
 
+std::string FINGERTRICK_NAMES[] = {"R_WRIST", "U_FLICK", "U_PINCH", "U_PUSH", "F_FLICK", "F_PINCH", "RP_WRIST", "UP_FLICK", "FP_PINCH", "FP_THUMB", "R2_UP", "R2_DOWN", "U2_LEFT", "U2_RIGHT", "F2_DOUBLE", "FP_FLICK"};
+std::string REGRIP_NAMES[] = {"REGRIP_NONE", "REGRIP_UP", "REGRIP_DOWN", "REGRIP_DOUBLE_UP", "REGRIP_DOUBLE_DOWN"};
+
 void Alg::gen(int depth, int handpos) {
 
     if (depth == length){
@@ -599,9 +602,9 @@ void Alg::gen(int depth, int handpos) {
         
         if (handpos == 0){
             // if (moves[depth+1] != U){
-                fingertrick_stack[depth][0] = FP_THUMB;
-                fingertrick_stack[depth][1] = REGRIP_NONE;
-                gen(depth + 1, handpos);
+                // fingertrick_stack[depth][0] = FP_THUMB;
+                // fingertrick_stack[depth][1] = REGRIP_NONE;
+                // gen(depth + 1, handpos);
             // }
 
             fingertrick_stack[depth][0] = FP_PINCH;
@@ -628,7 +631,7 @@ int FINGERTRICK_SCORES[16] = {
 60, //        F_PINCH,
 46, //        RP_WRIST,
 45, //        UP_FLICK,
-40, //        FP_PINCH,
+60, //        FP_PINCH, This one is manual
 75, //        FP_THUMB,
 70, //        R2_UP,
 70, //        R2_DOWN,
@@ -956,7 +959,10 @@ int Alg::score() {
     }
 
     // for (int i = 0; i < length; i++){
-    //     printf("", )
+    //     printf("%s\n", FINGERTRICK_NAMES[all_fingertrick_combinations[minId][i][0]].c_str());
+    //     if (all_fingertrick_combinations[minId][i][1] != REGRIP_NONE){
+    //         printf("%s\n", REGRIP_NAMES[all_fingertrick_combinations[minId][i][1]].c_str());
+    //     }
     // }
 
     return minEval;
