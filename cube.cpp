@@ -626,7 +626,7 @@ int FINGERTRICK_SCORES[16] = {
 46, //        R_WRIST,
 40, //        U_FLICK,
 56, //        U_PINCH,
-50, //        U_PUSH,
+60, //        U_PUSH, Manual 50->
 50, //        F_FLICK,
 60, //        F_PINCH,
 46, //        RP_WRIST,

@@ -234,7 +234,7 @@ function renderSolutions() {
       }
       if (allowedRotations.includes(rotations)){
         if (showScores){
-          li.textContent = `${alg} (Score: ${score})`;
+          li.textContent = `${alg} (Score: ${(score/600).toFixed(2)}s)`;
         } else {
           li.textContent = `${alg}`;
         }
