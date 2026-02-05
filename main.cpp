@@ -33,25 +33,33 @@ void increase_depth(){
 
 #ifdef EXE
 
-int main(int argc, char* argv[]){
+int main(){
     srand(time(NULL));
     init_cube();
     init_pruning();
 
-    time_t seconds;
-    seconds = time(NULL);
+    // time_t seconds;
+    // seconds = time(NULL);
 
-    start_search((char*)"R2 U2 R F' R' F U2 R2");
-    for (int i = 0; i < 14-PRUNING_DEPTH; i++){
-        increase_depth();
-        printf("%d\n", i);
-    }
+    // start_solver((char*)"R2 U2 R F' R' F U2 R2", false);
+    // for (int i = 0; i < 14-PRUNING_DEPTH; i++){
+    //     increase_depth();
+    //     printf("%d\n", i);
+    // }
 
 
-    //77
-    printf("Time: %ld seconds\n", time(NULL)-seconds);
+    // //77
+    // printf("Time: %ld seconds\n", time(NULL)-seconds);
 
-    // cube.parse_alg((char*)"R2 U2 R F' R' F U2 R2");
+    Cube cube = Cube();
+    cube.parse_alg((char*)"R' F R' F' R F' R' F' R U' F R");
+    Alg* alg = (Alg*)malloc(sizeof(Alg));
+    alg->from_cube(&cube);
+    int score = alg->score();
+    printf("%d\n", score);
+    free(alg);
+    
+    
     // find_algorithms(&cube);
     // Alg alg = Alg();
     // alg.from_cube(&cube);

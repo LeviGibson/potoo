@@ -110,11 +110,11 @@ public:
     int prevmove();
 
     //history of hashes
-    U64 history[512];
+    U64 history[64];
     //How many moves have been done since the last reset
     int ply;
     //All moves performed
-    int stack[512];
+    int stack[64];
 
 private:
     //Internal Functions used by make_move()

@@ -11,4 +11,4 @@ all:
 	-o potoo.js
 
 exe:
-	g++ *.cpp -DEXE -g -pg -o potoo
+	g++ *.cpp -g -DEXE -fsanitize=address -Wframe-larger-than=4096 -Wall -o potoo

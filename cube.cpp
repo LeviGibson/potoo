@@ -620,22 +620,22 @@ void Alg::gen(int depth, int handpos) {
 }
 
 int FINGERTRICK_SCORES[16] = {
-60, //        R_WRIST,
-70, //        U_FLICK,
-100, //        U_PINCH,
-150, //        U_PUSH,
-100, //        F_FLICK,
-180, //        F_PINCH,
-60, //        RP_WRIST,
-70, //        UP_FLICK,
-140, //        FP_PINCH,
-150, //        FP_THUMB,
-120, //        R2_UP,
-120, //        R2_DOWN,
-160, //        U2_LEFT,
-160, //        U2_RIGHT,
-160,//        F2_DOUBLE
-70 // FP_FLICK
+46, //        R_WRIST,
+40, //        U_FLICK,
+56, //        U_PINCH,
+50, //        U_PUSH,
+50, //        F_FLICK,
+60, //        F_PINCH,
+46, //        RP_WRIST,
+45, //        UP_FLICK,
+40, //        FP_PINCH,
+75, //        FP_THUMB,
+70, //        R2_UP,
+70, //        R2_DOWN,
+75, //        U2_LEFT,
+70, //        U2_RIGHT,
+80,//        F2_DOUBLE
+45 // FP_FLICK
 };
 
 enum {LEFT_POINTER, LEFT_MIDDLE, RIGHT_POINTER, RIGHT_MIDDLE, DOUBLE_LEFT_FINGER, DOUBLE_RIGHT_FINGER, NO_FINGER};
@@ -644,7 +644,7 @@ int FINGER_NEEDED[16] = {
         NO_FINGER, //        R_WRIST,
         RIGHT_POINTER, //        U_FLICK,
         RIGHT_POINTER, //        U_PINCH,
-        NO_FINGER, //        U_PUSH,
+        LEFT_POINTER, //        U_PUSH,
         RIGHT_POINTER, //        F_FLICK,
         RIGHT_POINTER, //        F_PINCH,
         NO_FINGER, //        RP_WRIST,
@@ -659,14 +659,20 @@ int FINGER_NEEDED[16] = {
         LEFT_POINTER // FP_FLICK
 };
 
+//How long does a regrip take? This can sometimes
+//be mitigated by doing the regrip in parallel with moves
+//like U' or U2'
 int REGRIP_SCORES[] = {
 0,//        REGRIP_NONE,
-80,//        REGRIP_UP,
-80,//        REGRIP_DOWN,
-140,//        REGRIP_DOUBLE_UP,
-140//        REGRIP_DOUBLE_DOWN
+110,//        REGRIP_UP,
+110,//        REGRIP_DOWN,
+220,//        REGRIP_DOUBLE_UP,
+220//        REGRIP_DOUBLE_DOWN
 };
 
+//For some fingertricks like R U R' U
+//you can avoid a finger reset on the second U
+//by doing the move with your middle finger.
 int can_use_middle_finger(int ft, int handpos){
 //            70, //        U_FLICK,
 //            100, //        U_PINCH,
@@ -709,6 +715,9 @@ int can_use_middle_finger(int ft, int handpos){
     } if (ft == FP_FLICK){
         return 0;
     }
+    if (ft == U_PUSH){
+        return 0;
+    }
 
     assert(0);
 }
@@ -717,6 +726,7 @@ int Alg::score_fingertricks(int index) {
     int score = 0;
     int finger_usage[4] = {0, 0, 0, 0};
     for (int i = 0; i < length; i++){
+        int fingers_used_on_fingertrick[4] = {0, 0, 0, 0};
         
         int ft = all_fingertrick_combinations[index][i][0];
         int movescore = 0;
@@ -726,34 +736,47 @@ int Alg::score_fingertricks(int index) {
 
         if (FINGER_NEEDED[ft] == LEFT_POINTER){
             if (finger_usage[LEFT_POINTER] > 0 && can_use_middle_finger(ft, all_fingertrick_combinations[index][i][2])){
-                movescore += 80 * finger_usage[LEFT_MIDDLE];
-                finger_usage[LEFT_MIDDLE] = 4;
+                movescore += finger_usage[LEFT_MIDDLE];
+                finger_usage[LEFT_MIDDLE] = 90;
+                finger_usage[LEFT_POINTER] = 90;
+                fingers_used_on_fingertrick[LEFT_MIDDLE] = 1;
+                fingers_used_on_fingertrick[LEFT_POINTER] = 1;
             } else {
-                movescore += 80 * finger_usage[LEFT_POINTER];
-                finger_usage[LEFT_POINTER] = 4;
+                movescore += finger_usage[LEFT_POINTER];
+                finger_usage[LEFT_POINTER] = 90;
+                fingers_used_on_fingertrick[LEFT_POINTER] = 1;
             }
         } else if (FINGER_NEEDED[ft] == RIGHT_POINTER){
             if (finger_usage[RIGHT_POINTER] > 0 && can_use_middle_finger(ft, all_fingertrick_combinations[index][i][2])) {
-                movescore += 80 * finger_usage[RIGHT_MIDDLE];
-                finger_usage[RIGHT_MIDDLE] = 4;
+                movescore += finger_usage[RIGHT_MIDDLE];
+                finger_usage[RIGHT_MIDDLE] = 90;
+                finger_usage[RIGHT_POINTER] = 90;
+                fingers_used_on_fingertrick[RIGHT_MIDDLE] = 1;
+                fingers_used_on_fingertrick[RIGHT_POINTER] = 1;
             } else {
-                movescore += 80 * finger_usage[RIGHT_POINTER];
-                finger_usage[RIGHT_POINTER] = 4;
+                movescore += finger_usage[RIGHT_POINTER];
+                finger_usage[RIGHT_POINTER] = 90;
+                fingers_used_on_fingertrick[RIGHT_POINTER] = 1;
             }
         } else if (FINGER_NEEDED[ft] == DOUBLE_LEFT_FINGER){
-            movescore += 80 * finger_usage[LEFT_POINTER];
-            finger_usage[LEFT_POINTER] = 4;
-            finger_usage[LEFT_MIDDLE] = 4;
+            movescore += finger_usage[LEFT_POINTER];
+            finger_usage[LEFT_POINTER] = 90;
+            finger_usage[LEFT_MIDDLE] = 90;
+            fingers_used_on_fingertrick[LEFT_POINTER] = 1;
+            fingers_used_on_fingertrick[LEFT_MIDDLE] = 1;
         } else if (FINGER_NEEDED[ft] == DOUBLE_RIGHT_FINGER){
-            movescore += 80 * finger_usage[RIGHT_POINTER];
-            finger_usage[RIGHT_POINTER] = 4;
-            finger_usage[RIGHT_MIDDLE] = 4;
+            movescore += finger_usage[RIGHT_POINTER];
+            finger_usage[RIGHT_POINTER] = 90;
+            finger_usage[RIGHT_MIDDLE] = 90;
+            fingers_used_on_fingertrick[RIGHT_POINTER] = 1;
+            fingers_used_on_fingertrick[RIGHT_MIDDLE] = 1;
         }
 
         //decay
         for (int f = 0; f < 4; f++){
-            if (finger_usage[f] > 0)
-                finger_usage[f]--;
+            if (finger_usage[f] > 0 && !fingers_used_on_fingertrick[f]){
+                finger_usage[f] = std::max(finger_usage[f]-movescore, 0);
+            }
         }
 
         if (i == length - 1 ||
@@ -922,17 +945,19 @@ int Alg::score() {
     gen(0, 1);
 
     int minEval = 10000000;
+    int minId = 0;
 
     for (int i = 0; i < fingertrick_combinations_found; i++){
         int score = score_fingertricks(i);
-        if (score < minEval)
+        if (score < minEval){
             minEval = score;
+            minId = i;
+        }
     }
 
-    return minEval;
+    // for (int i = 0; i < length; i++){
+    //     printf("", )
+    // }
 
-//    if (minEval < 10000000){
-//        print();
-//        printf("%d\n", minEval);
-//    }
+    return minEval;
 }
