@@ -728,7 +728,17 @@ int can_use_middle_finger(int ft, int handpos){
 int Alg::score_fingertricks(int index) {
     int score = 0;
     int finger_usage[4] = {0, 0, 0, 0};
-    for (int i = 0; i < length; i++){
+
+    int algStart = 0;
+    int algEnd = length;
+    if (algGeneratingMode && (moves[0] == U || moves[0] == UP || moves[0] == U2)){
+        algStart = 1;
+    }
+    if (algGeneratingMode && (moves[length-1] == U || moves[length-1] == UP || moves[length-1] == U2)){
+        algEnd--;
+    }
+
+    for (int i = algStart; i < algEnd; i++){
         int fingers_used_on_fingertrick[4] = {0, 0, 0, 0};
         
         int ft = all_fingertrick_combinations[index][i][0];
@@ -782,21 +792,13 @@ int Alg::score_fingertricks(int index) {
             }
         }
 
-        if (i == length - 1 ||
+        if (i == algEnd - 1 ||
             (algGeneratingMode && 
-                (moves[length-1] == U || moves[length-1] == UP || moves[length-1] == U2) &&
-                i == length-2)){
+                (moves[algEnd-1] == U || moves[algEnd-1] == UP || moves[algEnd-1] == U2) &&
+                i == algEnd-2)){
             //you can do funky fingertricks for the last move 
             //so lets not put very much weight on it
             score += (movescore/4);
-        } else if (i == 0 && algGeneratingMode &&
-            (moves[i] == U || moves[i] == UP || moves[i] == U2)){
-                //:)
-
-        } else if (i == length - 1 && algGeneratingMode &&
-            (moves[i] == U || moves[i] == UP || moves[i] == U2)){
-                //:)
-
         } else{
             score += movescore;
         }
