@@ -26,22 +26,22 @@ int is_close_to_solved(U64 h){
     }
 
     return 0;
+}
 
-//    for (int i = 0; i < close_solved_keys_found; i++){
-//        if (h == CLOSE_SOLVE_KEYS[i]){
-//            return 1;
-//        }
-//    }
-//    return 0;
+//Time: 31 seconds
+
+int is_key_already_found(U64 h){
+    for (int i = 0; i < close_solved_keys_found; i++){
+        if (h == CLOSE_SOLVE_KEYS[i])
+            return 1;
+    }
+    return 0;
 }
 
 void close_solve_search(int depth, Cube* cube){
     U64 h = cube->hash();
-    int found_key = 0;
-    for (int i = 0; i < close_solved_keys_found; i++){
-        if (h == CLOSE_SOLVE_KEYS[i])
-            found_key = 1;
-    }
+    
+    int found_key = is_key_already_found(h);
 
     if (!found_key){
         CLOSE_SOLVE_KEYS[close_solved_keys_found] = h;
