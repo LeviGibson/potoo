@@ -11,7 +11,8 @@ U64 EXTENDED_HASHES[1000000];
 int num_states_extended = 0;
 U64 SOLUTION_HASHES[1000000];
 int algs_found = 0;
-int nodes = 0;
+int mainNodes = 0;
+int extendedNodes = 0;
 
 Alg alg = Alg();
 
@@ -22,11 +23,10 @@ EM_JS(void, update, (), {
 #endif
 
 int extend_search(int depth, Cube* cube){
-        nodes++;
-        int extended = 1;
+        extendedNodes++;
 
     #ifdef WASM
-    if (nodes % 100 == 0){
+    if (mainNodes % 100 == 0){
         update();
     }
     #endif
@@ -70,10 +70,10 @@ int extend_search(int depth, Cube* cube){
 
             cube->make_move(move);
 
-            if (is_close_to_solved(cube->hash()) >= distanceFromSolved){
-                cube->pop();
-                continue;
-            }
+            // if (is_close_to_solved(cube->hash()) >= distanceFromSolved){
+            //     cube->pop();
+            //     continue;
+            // }
 
             int res = extend_search(depth - RS, cube);
             cube->pop();
@@ -87,10 +87,10 @@ int extend_search(int depth, Cube* cube){
 }
 
 int main_search(int depth, Cube* cube){
-    nodes++;
+    mainNodes++;
 
     #ifdef WASM
-    if (nodes % 100 == 0){
+    if (mainNodes % 100 == 0){
         update();
     }
     #endif
@@ -155,9 +155,11 @@ void start_search(char* scramble, int algGenerating){
 
     algs_found = 0;
     depthSearched = 0;
+    mainNodes = 0;
+    extendedNodes = 0;
 
     // for (int depth = 0; depth < 4; depth++){
-    //     printf("searching depth %d nodes %d\n", depth + PRUNING_DEPTH, nodes);
+    //     printf("searching depth %d mainNodes %d\n", depth + PRUNING_DEPTH, mainNodes);
     //     int res = search(depth, 0, &cube_copy);
     //     depthSearched = depth;
 
@@ -170,6 +172,6 @@ void start_search(char* scramble, int algGenerating){
 
 void step(){
     depthSearched++;
-    printf("searching depth %d nodes %d\n", depthSearched + PRUNING_DEPTH, nodes);
+    printf("searching depth %d mainNodes %d extendedNodes %d\n", depthSearched + PRUNING_DEPTH, mainNodes, extendedNodes);
     int res = main_search(depthSearched, &searchCube);
 }

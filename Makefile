@@ -13,4 +13,4 @@ all:
 exe:
 	g++ *.cpp -g -DEXE -fsanitize=address -Wframe-larger-than=4096 -Wall -o potoo
 prof:
-	g++ *.cpp -g -pg -DEXE -fsanitize=address -Wframe-larger-than=4096 -Wall -o potoo
+	g++ *.cpp -g -O0 -DEXE -Wall -o potoo

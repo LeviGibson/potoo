@@ -32,8 +32,6 @@ int is_close_to_solved(U64 h){
     return 0;
 }
 
-//Time: 31 seconds
-
 int is_key_already_found(U64 h){
     for (int i = 0; i < close_solved_keys_found; i++){
         if (h == CLOSE_SOLVE_KEYS[i].key)
