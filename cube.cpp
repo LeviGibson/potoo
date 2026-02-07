@@ -417,7 +417,6 @@ std::string ROTATION_NAMES[8][3] = {
 };
 
 void Alg::send() {
-
     for (int corner = 0; corner < 8; corner++){
         for (int orientation = 0; orientation < 3; orientation++){
             rotate(corner, orientation);

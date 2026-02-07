@@ -3,6 +3,7 @@
 //
 
 #include "pruning.h"
+#include <iostream>
 
 typedef struct {
     U64 key;
@@ -32,10 +33,12 @@ int is_close_to_solved(U64 h){
     return 0;
 }
 
-int is_key_already_found(U64 h){
+int is_key_already_found(U64 h, int ply){
     for (int i = 0; i < close_solved_keys_found; i++){
-        if (h == CLOSE_SOLVE_KEYS[i].key)
+        if (h == CLOSE_SOLVE_KEYS[i].key){
+            CLOSE_SOLVE_KEYS[i].length = std::min(ply, CLOSE_SOLVE_KEYS[i].length);
             return 1;
+        }
     }
     return 0;
 }
@@ -43,7 +46,7 @@ int is_key_already_found(U64 h){
 void close_solve_search(int depth, int ply, Cube* cube){
     U64 h = cube->hash();
     
-    int found_key = is_key_already_found(h);
+    int found_key = is_key_already_found(h, ply);
 
     if (!found_key){
         CLOSE_SOLVE_KEYS[close_solved_keys_found].key = h;

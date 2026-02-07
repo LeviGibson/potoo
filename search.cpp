@@ -40,6 +40,16 @@ int extend_search(int depth, Cube* cube){
         return 0;
     }
 
+    // searching depth 14 mainNodes 105532 extendedNodes 2013618
+    // Time: 57 seconds
+
+    //searching depth 14 mainNodes 105532 extendedNodes 33012
+    // Time: 58 seconds
+
+    if ((distanceFromSolved-1) > depth){
+        return 0;
+    }
+
     if (cube->is_solved()) {
         
         alg.from_cube(cube);
@@ -69,11 +79,6 @@ int extend_search(int depth, Cube* cube){
         if (!cube->is_repetition(move)) {
 
             cube->make_move(move);
-
-            // if (is_close_to_solved(cube->hash()) >= distanceFromSolved){
-            //     cube->pop();
-            //     continue;
-            // }
 
             int res = extend_search(depth - RS, cube);
             cube->pop();
