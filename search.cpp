@@ -33,8 +33,9 @@ int search(int depth, int extended, Cube* cube){
     assert(cube->ply < 60);
 
     U64 h = cube->hash();
+    int distanceFromSolved = is_close_to_solved(h);
 
-    if (extended && !is_close_to_solved(h)){
+    if (extended && !distanceFromSolved){
         return 0;
     }
 
@@ -56,7 +57,7 @@ int search(int depth, int extended, Cube* cube){
         }
     }
 
-    if (!extended && is_close_to_solved(h)){
+    if (!extended && distanceFromSolved){
         if (!U64_scan(h, EXTENDED_HASHES, num_states_extended)) {
             extended = 1;
             depth += PRUNING_DEPTH;
@@ -84,6 +85,14 @@ int search(int depth, int extended, Cube* cube){
                 RS = 0;
 
             cube->make_move(move);
+
+            if (extended){
+                if (is_close_to_solved(cube->hash()) >= distanceFromSolved){
+                    cube->pop();
+                    continue;
+                }
+            }
+
             int res = search(depth - RS, extended, cube);
             cube->pop();
 
