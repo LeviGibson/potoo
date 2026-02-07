@@ -148,8 +148,6 @@ public:
     //8192 combos to be safe
     //64 moves
     //Fingertrick type, regrip, handpos
-    int all_fingertrick_combinations[8192*2][64][3];
-    int fingertrick_combinations_found;
     int fingertrick_stack[64][3];
 
     int length;
@@ -162,10 +160,11 @@ public:
 
     int score();
     U64 hash();
+    int minScore;
 
 private:
     void gen(int depth, int handpos);
-    int score_fingertricks(int index);
+    int score_fingertricks();
 };
 
 

@@ -56,9 +56,9 @@ int extend_search(int depth, Cube* cube){
 
         if (!U64_scan(alg.hash(), SOLUTION_HASHES, algs_found)) {
 
-            // if (algs_found % 1000 == 0) {
-            //     printf("%d algs found\n", algs_found);
-            // }
+            if (algs_found % 100 == 0) {
+                printf("%d algs found\n", algs_found);
+            }
 
             SOLUTION_HASHES[algs_found] = alg.hash();
             algs_found++;

@@ -461,9 +461,12 @@ std::string REGRIP_NAMES[] = {"REGRIP_NONE", "REGRIP_UP", "REGRIP_DOWN", "REGRIP
 void Alg::gen(int depth, int handpos) {
 
     if (depth == length){
-        memcpy(all_fingertrick_combinations[fingertrick_combinations_found], fingertrick_stack, sizeof(fingertrick_stack));
-        fingertrick_combinations_found++;
-        assert(fingertrick_combinations_found < 8192*2);
+        // memcpy(all_fingertrick_combinations[fingertrick_combinations_found], fingertrick_stack, sizeof(fingertrick_stack));
+        int s = score_fingertricks();
+        if (s < minScore){
+            minScore = s;
+        }
+        // assert(fingertrick_combinations_found < 8192*2);
         return;
     }
 
@@ -724,7 +727,7 @@ int can_use_middle_finger(int ft, int handpos){
     assert(0);
 }
 
-int Alg::score_fingertricks(int index) {
+int Alg::score_fingertricks() {
     int score = 0;
     int finger_usage[4] = {0, 0, 0, 0};
 
@@ -740,14 +743,14 @@ int Alg::score_fingertricks(int index) {
     for (int i = algStart; i < algEnd; i++){
         int fingers_used_on_fingertrick[4] = {0, 0, 0, 0};
         
-        int ft = all_fingertrick_combinations[index][i][0];
+        int ft = fingertrick_stack[i][0];
         int movescore = 0;
 
         movescore += FINGERTRICK_SCORES[ft];
-        movescore += REGRIP_SCORES[all_fingertrick_combinations[index][i][1]];
+        movescore += REGRIP_SCORES[fingertrick_stack[i][1]];
 
         if (FINGER_NEEDED[ft] == LEFT_POINTER){
-            if (finger_usage[LEFT_POINTER] > 0 && can_use_middle_finger(ft, all_fingertrick_combinations[index][i][2])){
+            if (finger_usage[LEFT_POINTER] > 0 && can_use_middle_finger(ft, fingertrick_stack[i][2])){
                 movescore += finger_usage[LEFT_MIDDLE];
                 finger_usage[LEFT_MIDDLE] = 90;
                 finger_usage[LEFT_POINTER] = 90;
@@ -759,7 +762,7 @@ int Alg::score_fingertricks(int index) {
                 fingers_used_on_fingertrick[LEFT_POINTER] = 1;
             }
         } else if (FINGER_NEEDED[ft] == RIGHT_POINTER){
-            if (finger_usage[RIGHT_POINTER] > 0 && can_use_middle_finger(ft, all_fingertrick_combinations[index][i][2])) {
+            if (finger_usage[RIGHT_POINTER] > 0 && can_use_middle_finger(ft, fingertrick_stack[i][2])) {
                 movescore += finger_usage[RIGHT_MIDDLE];
                 finger_usage[RIGHT_MIDDLE] = 90;
                 finger_usage[RIGHT_POINTER] = 90;
@@ -940,24 +943,13 @@ void Alg::rotate(int corner, int orientation){
 }
 
 int Alg::score() {
-    memset(all_fingertrick_combinations, 0, sizeof(all_fingertrick_combinations));
-    memset(fingertrick_stack, 0, sizeof(fingertrick_stack));
-    fingertrick_combinations_found = 0;
+    minScore = 10000000;
 
     gen(0, 0);
     gen(0, -1);
     gen(0, 1);
 
-    int minEval = 10000000;
-    int minId = 0;
-
-    for (int i = 0; i < fingertrick_combinations_found; i++){
-        int score = score_fingertricks(i);
-        if (score < minEval){
-            minEval = score;
-            minId = i;
-        }
-    }
+    return minScore;
 
     // for (int i = 0; i < length; i++){
     //     printf("%s\n", FINGERTRICK_NAMES[all_fingertrick_combinations[minId][i][0]].c_str());
@@ -965,6 +957,4 @@ int Alg::score() {
     //         printf("%s\n", REGRIP_NAMES[all_fingertrick_combinations[minId][i][1]].c_str());
     //     }
     // }
-
-    return minEval;
 }
