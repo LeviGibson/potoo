@@ -158,6 +158,7 @@ void start_search(char* scramble, int algGenerating){
     algGeneratingMode = algGenerating;
     memset(EXTENDED_HASHES, 0, sizeof(EXTENDED_HASHES));
 
+    fingertricks_found = 0;
     algs_found = 0;
     depthSearched = 0;
     mainNodes = 0;
@@ -177,6 +178,6 @@ void start_search(char* scramble, int algGenerating){
 
 void step(){
     depthSearched++;
-    printf("searching depth %d mainNodes %d extendedNodes %d\n", depthSearched + PRUNING_DEPTH, mainNodes, extendedNodes);
+    printf("searching depth %d mainNodes %d extendedNodes %d fingertricks %d\n", depthSearched + PRUNING_DEPTH, mainNodes, extendedNodes, fingertricks_found);
     int res = main_search(depthSearched, &searchCube);
 }

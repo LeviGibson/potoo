@@ -140,6 +140,8 @@ extern Cube POSSIBLE_HTR_STATES[];
 //     DFL_D, DFL_L, DFL_F,//4
 // }
 
+extern int fingertricks_found;
+
 class Alg{
 public:
     int moves[64];

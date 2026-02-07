@@ -9,6 +9,7 @@
 #endif
 
 int algGeneratingMode = 0;
+int fingertricks_found;
 
 int qt_cycles[6][4] = {
         {UFR, UBR, DBR, DFR},
@@ -463,6 +464,7 @@ void Alg::gen(int depth, int handpos) {
     if (depth == length){
         // memcpy(all_fingertrick_combinations[fingertrick_combinations_found], fingertrick_stack, sizeof(fingertrick_stack));
         int s = score_fingertricks();
+        fingertricks_found++;
         if (s < minScore){
             minScore = s;
         }
