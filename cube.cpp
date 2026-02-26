@@ -798,12 +798,13 @@ int Alg::score_fingertricks() {
         }
 
         if (i == algEnd - 1 ||
-            (algGeneratingMode && 
+            (algGeneratingMode && !gegMode &&
                 (moves[algEnd-1] == U || moves[algEnd-1] == UP || moves[algEnd-1] == U2) &&
                 i == algEnd-2)){
             //you can do funky fingertricks for the last move 
             //so lets not put very much weight on it
             score += (movescore/4);
+            return score;
         } else{
             score += movescore;
         }
