@@ -64,7 +64,7 @@ void close_htr_search(int depth, int ply, Cube* cube){
     }
 }
 
-int is_close_to_solved(U64 h){
+int distance_from_solved(U64 h){
     int left = 0;
     int right = close_solved_keys_found - 1;
 
@@ -81,7 +81,7 @@ int is_close_to_solved(U64 h){
         }
     }
 
-    return 0;
+    return 1000000;
 }
 
 int is_key_already_found(U64 h, int ply){
@@ -134,14 +134,14 @@ void sort_close_htr_keys() {
 void init_pruning(){
     //62360
     Cube cube = Cube();
-    close_solve_search(PRUNING_DEPTH, 1, &cube);
+    close_solve_search(PRUNING_DEPTH, 0, &cube);
     sort_close_solve_keys();
     printf("Found %d hashable solutions\n", close_solved_keys_found);
 
     close_htr_keys_found = 0;
 
     for (int i = 0; i < 24; i++) {
-        close_htr_search(HTR_PRUNING_DEPTH, 1, &POSSIBLE_HTR_STATES[i]);
+        close_htr_search(HTR_PRUNING_DEPTH, 0, &POSSIBLE_HTR_STATES[i]);
     }
     sort_close_htr_keys();
 

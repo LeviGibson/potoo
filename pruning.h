@@ -12,6 +12,6 @@
 #define HTR_PRUNING_DEPTH 4
 
 void init_pruning();
-int is_close_to_solved(U64 h);
+int distance_from_solved(U64 h);
 
 #endif //GCO_PRUNING_H

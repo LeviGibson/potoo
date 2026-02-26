@@ -363,7 +363,7 @@ wasmModule._free(ptr);
 
     async function iterate() {
       solutions = [];
-      var depth = 7;
+      var depth = 0;
       while (depth <= maxDepth){
         document.getElementById("depthIndicator").textContent = `Searching Depth ${depth}`
         wasmModule._increase_depth();

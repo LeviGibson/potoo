@@ -42,7 +42,7 @@ int main(){
     seconds = time(NULL);
 
     start_solver((char*)"F2 U R' F R' F2 R U' R' U2", false, true);
-    for (int i = 0; i < 14-PRUNING_DEPTH; i++){
+    for (int i = 0; i < 14; i++){
         increase_depth();
         printf("%d\n", i);
     }

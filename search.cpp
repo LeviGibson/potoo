@@ -7,12 +7,9 @@
 #include <emscripten.h>
 #endif
 
-U64 EXTENDED_HASHES[1000000];
-int num_states_extended = 0;
 U64 SOLUTION_HASHES[1000000];
 int algs_found = 0;
 int mainNodes = 0;
-int extendedNodes = 0;
 
 Alg alg = Alg();
 
@@ -22,8 +19,8 @@ EM_JS(void, update, (), {
 });
 #endif
 
-int extend_search(int depth, Cube* cube){
-        extendedNodes++;
+int main_search(int depth, Cube* cube){
+    mainNodes++;
 
     #ifdef WASM
     if (mainNodes % 100 == 0){
@@ -32,23 +29,6 @@ int extend_search(int depth, Cube* cube){
     #endif
 
     assert(cube->ply < 60);
-
-    U64 h = cube->hash();
-    int distanceFromSolved = is_close_to_solved(h);
-
-    if (!distanceFromSolved){
-        return 0;
-    }
-
-    // searching depth 14 mainNodes 105532 extendedNodes 2013618
-    // Time: 57 seconds
-
-    //searching depth 14 mainNodes 105532 extendedNodes 33012
-    // Time: 58 seconds
-
-    if ((distanceFromSolved-1) > depth){
-        return 0;
-    }
 
     if (cube->is_solved()) {
         
@@ -68,51 +48,11 @@ int extend_search(int depth, Cube* cube){
         }
     }
 
-    if (depth <= 0)
-        return 0;
-
-    for (int move = 0; move <= F2; move++){
-        //R is the value that gets subtracted from depth with iterating
-        //It will almost always be 1 but sometimes it gets changed
-        int RS = 1;
-
-        if (!cube->is_repetition(move)) {
-
-            cube->make_move(move);
-
-            int res = extend_search(depth - RS, cube);
-            cube->pop();
-
-            if (res)
-                return 1;
-        }
-    }
-
-    return 0;
-}
-
-int main_search(int depth, Cube* cube){
-    mainNodes++;
-
-    #ifdef WASM
-    if (mainNodes % 100 == 0){
-        update();
-    }
-    #endif
-
-    assert(cube->ply < 60);
-
     U64 h = cube->hash();
-    int distanceFromSolved = is_close_to_solved(h);
+    int distanceFromSolved = distance_from_solved(h);
 
-    if (distanceFromSolved){
-        if (!U64_scan(h, EXTENDED_HASHES, num_states_extended)) {
-            EXTENDED_HASHES[num_states_extended] = h;
-            num_states_extended++;
-            assert(num_states_extended < 1000000);
-
-            return extend_search(PRUNING_DEPTH, cube);
-        }
+    if (depth <= PRUNING_DEPTH && distanceFromSolved > depth){
+        return 0;
     }
 
     if (depth <= 0)
@@ -154,17 +94,13 @@ void start_search(char* scramble, int algGenerating, int geg){
     Cube cube_copy = Cube();
     cube_copy.parse_alg(scramble);
     cube_copy.reset_history();
-    num_states_extended = 0;
     algGeneratingMode = algGenerating;
     gegMode = geg;
     
-    memset(EXTENDED_HASHES, 0, sizeof(EXTENDED_HASHES));
-
     fingertricks_found = 0;
     algs_found = 0;
     depthSearched = 0;
     mainNodes = 0;
-    extendedNodes = 0;
 
     // for (int depth = 0; depth < 4; depth++){
     //     printf("searching depth %d mainNodes %d\n", depth + PRUNING_DEPTH, mainNodes);
@@ -180,6 +116,6 @@ void start_search(char* scramble, int algGenerating, int geg){
 
 void step(){
     depthSearched++;
-    printf("searching depth %d mainNodes %d extendedNodes %d fingertricks %d\n", depthSearched + PRUNING_DEPTH, mainNodes, extendedNodes, fingertricks_found);
+    printf("searching depth %d mainNodes %d fingertricks %d\n", depthSearched + PRUNING_DEPTH, mainNodes, fingertricks_found);
     int res = main_search(depthSearched, &searchCube);
 }
