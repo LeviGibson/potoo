@@ -10,6 +10,7 @@
 U64 SOLUTION_HASHES[1000000];
 int algs_found = 0;
 int mainNodes = 0;
+int pruningDepth = 0;
 
 Alg alg = Alg();
 
@@ -18,6 +19,22 @@ EM_JS(void, update, (), {
     window.update();
 });
 #endif
+
+int solve_condition(Cube* cube){
+    if (gegMode){
+        return cube->is_htr();
+    } else {
+        return cube->is_solved();
+    }
+}
+
+int distance_from_condition(U64 h){
+    if (gegMode){
+        return distance_from_htr(h);
+    } else {
+        return distance_from_solved(h);
+    }
+}
 
 int main_search(int depth, Cube* cube){
     mainNodes++;
@@ -30,7 +47,7 @@ int main_search(int depth, Cube* cube){
 
     assert(cube->ply < 60);
 
-    if (cube->is_solved()) {
+    if (solve_condition(cube)) {
         
         alg.from_cube(cube);
 
@@ -49,9 +66,9 @@ int main_search(int depth, Cube* cube){
     }
 
     U64 h = cube->hash();
-    int distanceFromSolved = distance_from_solved(h);
+    int distanceFromSolved = distance_from_condition(h);
 
-    if (depth <= PRUNING_DEPTH && distanceFromSolved > depth){
+    if (depth <= pruningDepth && distanceFromSolved > depth){
         return 0;
     }
 
@@ -101,6 +118,12 @@ void start_search(char* scramble, int algGenerating, int geg){
     algs_found = 0;
     depthSearched = 0;
     mainNodes = 0;
+
+    if (geg){
+        pruningDepth = HTR_PRUNING_DEPTH;
+    } else  {
+        pruningDepth = PRUNING_DEPTH;
+    }
 
     // for (int depth = 0; depth < 4; depth++){
     //     printf("searching depth %d mainNodes %d\n", depth + PRUNING_DEPTH, mainNodes);

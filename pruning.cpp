@@ -16,7 +16,7 @@ int close_solved_keys_found = 0;
 Key CLOSE_HTR_KEYS[16296];
 int close_htr_keys_found = 0;
 
-int is_close_to_htr(U64 h){
+int distance_from_htr(U64 h){
     int left = 0;
     int right = close_htr_keys_found - 1;
 
@@ -33,7 +33,7 @@ int is_close_to_htr(U64 h){
         }
     }
 
-    return 0;
+    return 10000000;
 }
 
 void close_htr_search(int depth, int ply, Cube* cube){

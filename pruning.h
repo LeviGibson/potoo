@@ -13,5 +13,6 @@
 
 void init_pruning();
 int distance_from_solved(U64 h);
+int distance_from_htr(U64 h);
 
 #endif //GCO_PRUNING_H
