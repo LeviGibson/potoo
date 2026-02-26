@@ -19,10 +19,10 @@ void init_all(){
     
 }
 
-void start_solver(const char* scramble, bool algGenerating) {
-    printf("Scramble Recieved: %s\n", scramble);
-    printf("%d\n", algGenerating);
-    start_search((char*)scramble, algGenerating);
+void start_solver(const char* scramble, bool algGenerating, bool geg) {
+    // printf("Scramble Recieved: %s\n", scramble);
+    printf("gegMode: %d\n", geg);
+    start_search((char*)scramble, algGenerating, (int)geg);
 }
 
 void increase_depth(){
@@ -41,7 +41,7 @@ int main(){
     time_t seconds;
     seconds = time(NULL);
 
-    start_solver((char*)"F2 U R' F R' F2 R U' R' U2", false);
+    start_solver((char*)"F2 U R' F R' F2 R U' R' U2", false, true);
     for (int i = 0; i < 14-PRUNING_DEPTH; i++){
         increase_depth();
         printf("%d\n", i);

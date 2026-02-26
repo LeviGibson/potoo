@@ -150,12 +150,14 @@ int depthSearched;
 
 Cube searchCube;
 
-void start_search(char* scramble, int algGenerating){
+void start_search(char* scramble, int algGenerating, int geg){
     Cube cube_copy = Cube();
     cube_copy.parse_alg(scramble);
     cube_copy.reset_history();
     num_states_extended = 0;
     algGeneratingMode = algGenerating;
+    gegMode = geg;
+    
     memset(EXTENDED_HASHES, 0, sizeof(EXTENDED_HASHES));
 
     fingertricks_found = 0;

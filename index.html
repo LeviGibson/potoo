@@ -131,6 +131,11 @@
       Ignore Pre/Post AUF
     </label>
 
+    <!-- <label>
+      <input type="checkbox" id="gegCheckbox">
+      GEG mode
+    </label> -->
+
     <h3>Allowed Angles</h3>
     <button id="selectAllRotations">Select All</button>
     <button id="selectNoneRotations">Select None</button>
@@ -342,7 +347,8 @@ const ptr = wasmModule._malloc(lengthBytes);
 wasmModule.stringToUTF8(scramble, ptr, lengthBytes);
 
 // Call your C++ function with pointer
-wasmModule._start_solver(ptr, document.getElementById("algGeneratingCheckbox").checked);
+// wasmModule._start_solver(ptr, document.getElementById("algGeneratingCheckbox").checked, document.getElementById("gegCheckbox").checked);
+wasmModule._start_solver(ptr, document.getElementById("algGeneratingCheckbox").checked, 0);
 
 // Free memory afterwards (optional)
 wasmModule._free(ptr);

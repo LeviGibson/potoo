@@ -9,6 +9,7 @@
 
 //Make sure to change the array size when updating this
 #define PRUNING_DEPTH 6
+#define HTR_PRUNING_DEPTH 4
 
 void init_pruning();
 int is_close_to_solved(U64 h);

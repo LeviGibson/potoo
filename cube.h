@@ -12,6 +12,7 @@
 #include <cstring>
 
 extern int algGeneratingMode;
+extern int gegMode;
 
 #define is_qt(move) move < R2 ? 1 : 0
 #define U64 uint64_t

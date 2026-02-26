@@ -9,6 +9,7 @@
 #endif
 
 int algGeneratingMode = 0;
+int gegMode = 0;
 int fingertricks_found;
 
 int qt_cycles[6][4] = {
